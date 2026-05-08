@@ -180,9 +180,14 @@
             canvas.height = 24;
             const ctx = canvas.getContext('2d');
 
+            // ★ iPhoneのぼかしを最小限にする魔法の3行
+            ctx.imageSmoothingEnabled = false; // ぼかしをオフ
+            ctx.mozImageSmoothingEnabled = false;
+            ctx.webkitImageSmoothingEnabled = false;
+
             ctx.fillStyle = "black";
             // フォント設定
-            ctx.font = "bold 20px 'MS Gothic', 'Hiragino Sans', 'Apple Gothic', sans-serif";
+            ctx.font = "bold 19px 'MS Gothic', 'Hiragino Sans', 'Apple Gothic', sans-serif";
             ctx.textAlign = "center"; ctx.textBaseline = "middle";
             ctx.fillText(char, 12, 12); // 用紙の真ん中に文字を描く
 
@@ -191,7 +196,8 @@
             const bits = [];
             for (let i = 3; i < imgData.length; i += 4) {
                 // 透明度(A)が110より濃いなら1(塗る)、薄いなら0(塗らない)
-                bits.push(imgData[i] > 110 ? 1 : 0);
+                // 追記：iPhoneの薄いドットを無視するため、判定基準を少し厳しめ(128)にします
+                bits.push(imgData[i] > 128 ? 1 : 0);
             }
 
             // --- STEP 2: 配置の計算 (50x30の中央に24x24を置く) ---
