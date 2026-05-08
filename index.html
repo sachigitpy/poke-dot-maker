@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <title>ぽこポケ文字ドットメーカー</title>
     <style>
         body { 
@@ -11,24 +12,23 @@
             display: flex; 
             flex-direction: column; 
             align-items: center; 
-            padding: 15px; 
+            padding: 10px; 
             margin: 0; 
-            height: 100vh; 
+            min-height: 100vh; 
             box-sizing: border-box; 
         }
         
-        h1 { margin: 0 0 10px 0; font-size: 24px; color: #1a1a1a; }
+        h1 { margin: 5px 0 10px 0; font-size: 28px; text-align: center; }
 
         /* 説明文：白背景に合うよう少し淡い紺色に */
         .description { 
             background: #e9ecef; 
             color: #495057; 
-            padding: 10px 30px; 
+            padding: 8px 15px; 
             border-radius: 4px; 
             text-align: center; 
             margin-bottom: 10px; 
-            font-size: 14px; 
-            line-height: 1.5; 
+            font-size: 12px; 
             width: 100%; 
             max-width: 750px; 
             box-sizing: border-box;
@@ -38,19 +38,24 @@
         .controls { 
             margin-bottom: 10px; 
             background: #fff; 
-            padding: 12px 15px; 
+            padding: 10px; 
             border-radius: 8px; 
             display: flex; 
-            gap: 15px; 
+            flex-wrap: wrap; /* スマホでボタンがはみ出さないよう折り返し */
+            justify-content: center;
+            gap: 10px; 
             align-items: center; 
             box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
             border: 1px solid #dee2e6;
+            width: 100%;
+            max-width: 750px;
+            box-sizing: border-box;
         }
         
         input[type="text"] { 
             padding: 8px; 
             font-size: 18px; 
-            width: 60px; 
+            width: 50px; 
             text-align: center; 
             border: 1px solid #ced4da; 
             border-radius: 4px; 
@@ -58,35 +63,50 @@
         
         /* 生成ボタン */
         .gen-btn { 
-            padding: 8px 25px; 
+            padding: 8px 20px; 
             background: #16a085; 
             color: white; 
             border: none; 
             border-radius: 4px; 
             cursor: pointer; 
             font-weight: bold; 
-            font-size: 16px; 
-            transition: 0.2s; 
+            font-size: 14px; 
         }
-        .gen-btn:hover { background: #1abc9c; }
 
-        /* グリッドコンテナ：白背景に合わせて枠線を調整 */
+        /* グリッドコンテナ：スマホで横スクロールできるように設定 */
         .grid-container { 
             background: #fff; 
-            padding: 12px; 
+            padding: 8px; 
             border-radius: 8px; 
             box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
             border: 1px solid #dee2e6;
-            margin-bottom: 5px; 
+            margin-bottom: 10px; 
+            max-width: 100%; /* 画面幅を超えない */
+            overflow-x: auto; /* はみ出したら横スクロール */
+            -webkit-overflow-scrolling: touch; /* iPhoneでスルスル動くように */
         }
         
+        /* 14px固定だとスマホで巨大すぎるので、スマホ時はサイズを落とす */
         .grid { 
             display: grid; 
             grid-template-columns: repeat(50, 14px); 
             gap: 1px; 
-            background: #ced4da; /* グリッド線を少し薄く */
+            background: #ced4da; 
         }
         
+        /* スマホ用調整（画面幅が600px以下の時） */
+        @media (max-width: 600px) {
+            .grid { 
+                grid-template-columns: repeat(50, 8px); /* 14pxから8pxに縮小 */
+            }
+            .cell { 
+                width: 8px !important; 
+                height: 8px !important; 
+            }
+            h1 { font-size: 18px; }
+            .legend { flex-direction: column; gap: 5px; font-size: 12px; }
+        }
+
         /*　方眼セル */
         .cell { 
             width: 14px; 
@@ -99,48 +119,33 @@
         
         .cell.black { background: #000; }
         .cell.done { background: #2ecc71 !important; outline: 1px solid #27ae60; }
-
         .cell.border-top { border-top: 2px solid #ff4757; }
         .cell.border-bottom { border-bottom: 2px solid #ff4757; }
         .cell.border-left { border-left: 2px solid #ff4757; }
         .cell.border-right { border-right: 2px solid #ff4757; }
         
-        .cell:hover::after {
-            content: attr(data-coord); 
-            position: absolute; 
-            bottom: 100%; 
-            left: 50%; 
-            transform: translateX(-50%);
-            background: #343a40; 
-            color: white; 
-            padding: 2px 5px; 
-            border-radius: 3px; 
-            font-size: 10px; 
-            z-index: 10;
-        }
-
         /* 凡例 */
         .legend { 
             margin-top: 5px; 
             display: flex; 
-            gap: 20px; 
-            font-size: 14px; 
-            padding: 5px 15px; 
+            gap: 15px; 
+            font-size: 13px; 
+            padding: 5px; 
+            flex-wrap: wrap;
+            justify-content: center;
         }
         .box { 
-            width: 16px; 
-            height: 16px; 
-            display: inline-block; 
-            vertical-align: middle; 
-            border: 1px solid #333; 
-            margin-right: 5px; 
-            box-sizing: border-box; 
+            width: 14px;
+            height: 14px;
+            display: inline-block;
+            vertical-align: middle;
+            border: 1px solid #333;
+            margin-right: 5px;
         }
     </style>
 </head>
 <body>
-    <h1>ぽこポケ文字ドットメーカー(24×24)</h1>
-    
+    <h1>ぽこポケ文字ドットメーカー</h1>
     <div class="description">
         キャンバス：50 × 30 | 文字エリア：24 × 24 (中央配置)<br>
         マスをクリックすると「完了(緑)」にマークできます。作成の進捗管理にどうぞ。
@@ -149,7 +154,7 @@
     <div class="controls">
         <span>文字入力:</span>
         <input type="text" id="charInput" maxlength="1" value="武">
-        <button class="gen-btn" onclick="generateGrid()">設計図を生成</button>
+        <button class="gen-btn" onclick="generateGrid()">ドット文字を生成</button>
     </div>
 
     <div class="grid-container">
@@ -171,14 +176,14 @@
 
             // --- STEP 1: ブラウザの「Canvas API」で文字をドット化 ---
             const canvas = document.createElement('canvas');
-            canvas.width = 24;  // 文字を描くための24マスの下書き用紙
+            canvas.width = 24; // 文字を描くための24マスの下書き用紙
             canvas.height = 24;
             const ctx = canvas.getContext('2d');
-            
+
             ctx.fillStyle = "black";
-            ctx.font = "bold 20px sans-serif";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
+            // フォント設定
+            ctx.font = "bold 20px 'MS Gothic', 'Hiragino Sans', 'Apple Gothic', sans-serif";
+            ctx.textAlign = "center"; ctx.textBaseline = "middle";
             ctx.fillText(char, 12, 12); // 用紙の真ん中に文字を描く
 
             // 用紙からピクセルデータ（色の情報）を抜き出す
@@ -191,22 +196,22 @@
 
             // --- STEP 2: 配置の計算 (50x30の中央に24x24を置く) ---
             // 横：(50マス - 24マス) / 2 = 13マス目から開始
-            const offsetLeft = 13;
-            // 縦：(30マス - 24マス) / 2 = 3マス目から開始
+            const offsetLeft = 13; 
+             // 縦：(30マス - 24マス) / 2 = 3マス目から開始
             const offsetTop = 3;
-            
+
             const offsetRight = offsetLeft + 23;  // 文字エリアの右端
             const offsetBottom = offsetTop + 23; // 文字エリアの下端
 
             // --- STEP 3: 50×30のマス目をHTMLで作る ---
-            for (let y = 0; y < 30; y++) {        // 縦に30回ループ
-                for (let x = 0; x < 50; x++) {    // 横に50回ループ
+            for (let y = 0; y < 30; y++) {      // 縦に30回ループ
+                for (let x = 0; x < 50; x++) {  // 横に50回ループ
                     const cell = document.createElement('div');
                     cell.className = 'cell';
 
-                    // マスに座標データを書き込む
+                     // マスに座標データを書き込む
                     cell.dataset.coord = `X:${x}, Y:${y}`;
-                    
+
                     // 文字エリア（赤枠）の中かどうかの判定
                     const isInsideX = (x >= offsetLeft && x <= offsetRight);
                     const isInsideY = (y >= offsetTop && y <= offsetBottom);
@@ -220,20 +225,15 @@
 
                         // bits配列（24x24のデータ）から今の座標に合うデータを取り出す
                         const bitIndex = (y - offsetTop) * 24 + (x - offsetLeft);
-                        if (bits[bitIndex] === 1) {
-                            cell.classList.add('black'); // 塗るべき場所なら黒くする
-                        }
+                        if (bits[bitIndex] === 1) cell.classList.add('black');
                     }
-
                     // クリックで進捗管理（緑色にする）
                     cell.onclick = function() { this.classList.toggle('done'); };
-                    container.appendChild(cell); // 画面上のグリッドに追加
+                    container.appendChild(cell);    // 画面上のグリッドに追加
                 }
             }
         }
-
-        // ページを開いた時に最初の1回を実行
-        window.onload = generateGrid;
+        window.onload = generateGrid;   // ページを開いた時に最初の1回を実行
     </script>
 </body>
 </html>
